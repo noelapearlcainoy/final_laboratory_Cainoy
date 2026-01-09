@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - SchoolFind</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-6">
+
+<div class="max-w-lg mx-auto bg-white rounded-xl shadow p-6">
+
+    <h1 class="text-2xl font-bold mb-4 text-green-600">Profile</h1>
+
+    <!-- Display messages -->
+    {% if messages %}
+        <ul class="mb-4">
+            {% for message in messages %}
+                <li class="text-sm text-green-600">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- Username -->
+        <div>
+            <label class="block font-semibold mb-1">Username</label>
+            {{ form.username }}
+        </div>
+
+        <!-- Email -->
+        <div>
+            <label class="block font-semibold mb-1">Email</label>
+            {{ form.email }}
+        </div>
+
+        <!-- Password -->
+        <div>
+            <label class="block font-semibold mb-1">New Password (optional)</label>
+            {{ form.password }}
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end gap-2 pt-4 border-t border-gray-200">
+            <a href="{% url 'dashboard' %}" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Back</a>
+            <button type="submit" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">Save</button>
+        </div>
+    </form>
+
+</div>
+
+</body>
+</html>

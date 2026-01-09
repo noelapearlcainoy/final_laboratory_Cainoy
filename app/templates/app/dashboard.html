@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% load static %}
+    <title>SchoolFind</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-6 bg-gray-50 font-sans">
+
+{% block dashboard_content %}
+
+<!-- ================= HEADER ================= -->
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-green-600">SchoolFind</h1>
+
+    <!-- Profile -->
+    <div class="relative">
+        <button onclick="toggleProfile()" class="flex items-center gap-3 focus:outline-none">
+            <div class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-white font-bold uppercase">
+                {{ request.user.username|first }}
+            </div>
+        </button>
+
+        <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+            <div class="p-4 border-b">
+                <p class="font-semibold text-green-700">{{ request.user.get_full_name|default:request.user.username }}</p>
+                <p class="text-sm text-gray-500">Username: {{ request.user.username }}</p>
+                <p class="text-sm text-gray-500">Status: {% if request.user.is_active %}Active{% else %}Inactive{% endif %}</p>
+                <p class="text-sm text-gray-500">Joined: {{ request.user.date_joined|date:"F j, Y" }}</p>
+            </div>
+
+            <div class="p-4 border-t">
+                <form method="post" action="{% url 'edit_profile' %}" class="flex gap-2">
+                    {% csrf_token %}
+                    <input type="text" name="full_name" value="{{ request.user.get_full_name|default:'' }}" 
+                        class="flex-1 border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Full Name">
+                    <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 font-semibold">Save</button>
+                </form>
+            </div>
+
+            <div class="p-3 border-t">
+                <a href="{% url 'logout' %}" class="w-full block text-center bg-gray-200 py-2 rounded-lg hover:bg-gray-300 font-semibold">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= ACTION BUTTONS ================= -->
+<div class="flex gap-4 mb-6">
+    <button onclick="showForm()" class="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition">+ Report an Item</button>
+    <button onclick="showPending()" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition">Lost Item Reports</button>
+    <button onclick="showClaimed()" class="bg-gray-600 text-white px-6 py-3 rounded-xl hover:bg-gray-700 transition">Claimed Items</button>
+</div>
+
+<!-- ================= REPORT FORM ================= -->
+<div id="form" class="hidden max-w-xl mx-auto mt-6 bg-white rounded-2xl shadow-xl border border-green-200 p-6">
+    <div class="bg-green-600 px-6 py-4 rounded-t-2xl">
+        <h2 class="text-white text-xl font-bold">Report Lost Item</h2>
+        <p class="text-green-100 text-sm">Help return lost items to their owners</p>
+    </div>
+    <form method="post" enctype="multipart/form-data" class="space-y-4 mt-4">
+        {% csrf_token %}
+        <div><label class="form-label font-semibold">Item Name</label>{{ form.item_name }}</div>
+        <div><label class="form-label font-semibold">Category</label>{{ form.category }}</div>
+        <div><label class="form-label font-semibold">Description</label>{{ form.description }}</div>
+        <div class="grid grid-cols-2 gap-4">
+            <div><label class="form-label font-semibold">Date Found</label>{{ form.date_found }}</div>
+            <div><label class="form-label font-semibold">Location</label>{{ form.location }}</div>
+        </div>
+        <div><label class="form-label font-semibold">Image</label>{{ form.image }}</div>
+        <div class="flex justify-end gap-3 pt-4 border-t border-green-200">
+            <button type="button" onclick="showPending()" class="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Back</button>
+            <button type="submit" class="px-6 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700">Report Item</button>
+        </div>
+    </form>
+</div>
+
+<!-- ================= PENDING REPORTS ================= -->
+<div id="pending">
+    <table class="w-full bg-white rounded-xl shadow table-fixed">
+        <thead class="bg-green-600 text-white">
+            <tr>
+                <th class="p-2 w-1/6">Item</th>
+                <th class="w-2/6">Description</th>
+                <th class="w-1/6">Category</th>
+                <th class="w-1/6">Status</th>
+                <th class="w-1/6">Date Found</th>
+                <th class="w-1/6">Image</th>
+                <th class="w-1/6">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in pending_reports %}
+                <tr class="border-b text-center">
+                    <td class="p-2">{{ r.item_name }}</td>
+                    <td class="text-left px-2">{{ r.description|truncatechars:40 }}</td>
+                    <td>{{ r.category }}</td>
+                    <td><span class="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-700">Pending</span></td>
+                    <td>{{ r.date_found }}</td>
+                    <td>
+                        {% if r.image %}<img src="{{ r.image.url }}" class="mx-auto h-10 w-10 rounded object-cover">{% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'confirm_claim' r.id %}" 
+                           class="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-700 hover:bg-yellow-200">
+                            Claim
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="text-center p-4 text-gray-500">No pending reports.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ================= CLAIMED ITEMS ================= -->
+<div id="claimed" class="hidden">
+    <table class="w-full bg-white rounded-xl shadow table-fixed mt-4">
+        <thead class="bg-gray-600 text-white">
+            <tr>
+                <th class="p-2 w-1/6">Item</th>
+                <th class="w-2/6">Description</th>
+                <th class="w-1/6">Category</th>
+                <th class="w-1/6">Status</th>
+                <th class="w-1/6">Date Found</th>
+                <th class="w-1/6">Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in claimed_reports %}
+                <tr class="border-b text-center">
+                    <td class="p-2">{{ r.item_name }}</td>
+                    <td class="text-left px-2">{{ r.description|truncatechars:40 }}</td>
+                    <td>{{ r.category }}</td>
+                    <td><span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">Claimed</span></td>
+                    <td>{{ r.date_found }}</td>
+                    <td>
+                        {% if r.image %}<img src="{{ r.image.url }}" class="mx-auto h-10 w-10 rounded object-cover">{% else %}—{% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-center p-4 text-gray-500">No claimed items.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+<!-- ================= JS ================= -->
+<script>
+function toggleProfile() {
+    document.getElementById('profileDropdown').classList.toggle('hidden');
+}
+
+function showForm() { hideAll(); document.getElementById('form').classList.remove('hidden'); }
+function showPending() { hideAll(); document.getElementById('pending').classList.remove('hidden'); }
+function showClaimed() { hideAll(); document.getElementById('claimed').classList.remove('hidden'); }
+function hideAll() {
+    document.getElementById('form').classList.add('hidden');
+    document.getElementById('pending').classList.add('hidden');
+    document.getElementById('claimed').classList.add('hidden');
+}
+
+document.addEventListener('click', e => {
+    const dropdown = document.getElementById('profileDropdown');
+    const button = dropdown.previousElementSibling;
+    if (!dropdown.contains(e.target) && !button.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+</script>
+
+</body>
+</html>

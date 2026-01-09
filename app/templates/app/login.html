@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login | SchoolFind</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    <div class="logo">SchoolFind</div>
+    <div class="subtitle">Lost and Find System</div>
+
+    <div class="container">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert fade-message">
+                    ⚠️ {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <h2>Login</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <input type="password" name="password" placeholder="Enter your password" required>
+            <button type="submit">LOGIN</button>
+        </form>
+
+        <div class="link-text">
+            Don't have an account? <a href="{% url 'signup' %}">Signup</a>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(function () {
+            const alerts = document.querySelectorAll('.fade-message');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 1000);
+            });
+        }, 3000);
+    </script>
+</body>
+</html>

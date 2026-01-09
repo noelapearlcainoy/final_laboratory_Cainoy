@@ -1,0 +1,19 @@
+<!-- app/templates/app/confirm_claim.html -->
+{% extends "app/dashboard.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-md mx-auto mt-20 bg-white rounded-2xl shadow-xl border border-green-200 p-6 text-center">
+    <h2 class="text-xl font-bold text-green-600 mb-4">Confirm Claim</h2>
+    <p class="mb-6 text-gray-700">This is your lost item: <strong>{{ item.item_name }}</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700">
+            Yes, Confirm
+        </button>
+        <a href="{% url 'dashboard' %}" class="px-6 py-2 bg-gray-200 rounded-lg font-semibold hover:bg-gray-300 ml-4">
+            Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

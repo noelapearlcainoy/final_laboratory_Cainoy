@@ -1,0 +1,29 @@
+{% load static %}
+<div id="reportForm" class="p-6 max-w-xl mx-auto bg-white rounded-xl shadow">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label class="font-semibold">Title</label>
+        {{ form.item_name|add_class:"w-full bg-gray-200 rounded-xl p-3 mb-4" }}
+
+        <label class="font-semibold">Category</label>
+        {{ form.category|add_class:"w-full bg-gray-200 rounded-xl p-3 mb-4" }}
+
+        <label class="font-semibold">Description</label>
+        {{ form.description|add_class:"w-full bg-gray-200 rounded-xl p-3 mb-4 h-32" }}
+
+        <label class="font-semibold">Date Found</label>
+        {{ form.date_found|add_class:"w-full bg-gray-200 rounded-xl p-3 mb-4" }}
+
+        <label class="font-semibold">Location</label>
+        {{ form.location|add_class:"w-full bg-gray-200 rounded-xl p-3 mb-4" }}
+
+        <label class="font-semibold">Image</label>
+        {{ form.image|add_class:"w-full bg-gray-200 rounded-xl p-3 mb-4" }}
+
+        <div class="flex gap-4 mt-4">
+            <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-full">Report</button>
+            <a href="{% url 'dashboard' %}" class="bg-gray-400 text-white px-6 py-2 rounded-full">Back</a>
+        </div>
+    </form>
+</div>
